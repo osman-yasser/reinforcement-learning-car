@@ -6,7 +6,7 @@ from nn import neural_net, LossHistory
 import os.path
 import timeit
 
-NUM_INPUT = 3
+NUM_INPUT = 1
 GAMMA = 0.9  # Forgetting.
 TUNING = False  # If False, just use arbitrary, pre-selected params.
 
@@ -140,10 +140,10 @@ def process_minibatch2(minibatch, model):
 
     mb_len = len(minibatch)
 
-    old_states = np.zeros(shape=(mb_len, 3))
+    old_states = np.zeros(shape=(mb_len, NUM_INPUT))
     actions = np.zeros(shape=(mb_len,))
     rewards = np.zeros(shape=(mb_len,))
-    new_states = np.zeros(shape=(mb_len, 3))
+    new_states = np.zeros(shape=(mb_len, NUM_INPUT))
 
     for i, m in enumerate(minibatch):
         old_state_m, action_m, reward_m, new_state_m = m
