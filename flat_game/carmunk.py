@@ -64,12 +64,13 @@ class GameState:
         # Create some obstacles, semi-randomly.
         # We'll create three and they'll move around to prevent over-fitting.
         self.obstacles = []
-        self.obstacles.append(self.create_obstacle(200, 350, 100))
-        self.obstacles.append(self.create_obstacle(700, 200, 125))
-        self.obstacles.append(self.create_obstacle(600, 600, 35))
+        for i in range(1, 7):
+            self.obstacles.append(self.create_obstacle(random.randint(1, width), random.randint(1, height), i*10))
 
         # Create a cat.
-        self.create_cat()
+        self.cats = []
+        for i in range(1, 3):
+            self.cats.append(self.create_cat())
 
     def create_obstacle(self, x, y, r):
         c_body = pymunk.Body(pymunk.inf, pymunk.inf)
@@ -82,14 +83,15 @@ class GameState:
 
     def create_cat(self):
         inertia = pymunk.moment_for_circle(1, 0, 14, (0, 0))
-        self.cat_body = pymunk.Body(1, inertia)
-        self.cat_body.position = 50, height - 100
-        self.cat_shape = pymunk.Circle(self.cat_body, 30)
-        self.cat_shape.color = THECOLORS["orange"]
-        self.cat_shape.elasticity = 1.0
-        self.cat_shape.angle = 0.5
-        direction = Vec2d(1, 0).rotated(self.cat_body.angle)
-        self.space.add(self.cat_body, self.cat_shape)
+        cat_body = pymunk.Body(1, inertia)
+        cat_body.position = 50, height - 100
+        cat_shape = pymunk.Circle(cat_body, 30)
+        cat_shape.color = THECOLORS["orange"]
+        cat_shape.elasticity = 1.0
+        cat_shape.angle = 0.5
+        direction = Vec2d(1, 0).rotated(cat_body.angle)
+        self.space.add(cat_body, cat_shape)
+        return cat_body
 
     def create_car(self, x, y, r):
         inertia = pymunk.moment_for_circle(1, 0, 14, (0, 0))
@@ -113,7 +115,7 @@ class GameState:
         if self.num_steps % 100 == 0:
             self.move_obstacles()
 
-        # Move cat.
+        # Move cats.
         if self.num_steps % 5 == 0:
             self.move_cat()
 
@@ -156,12 +158,13 @@ class GameState:
 
     def move_cat(self):
         speed = random.randint(20, 200)
-        self.cat_body.angle -= random.randint(-1, 1)
-        direction = Vec2d(1, 0).rotated(self.cat_body.angle)
-        self.cat_body.velocity = speed * direction
+        for cat in self.cats:
+            cat.angle -= random.randint(-1, 1)
+            direction = Vec2d(1, 0).rotated(cat.angle)
+            cat.velocity = speed * direction
 
     def car_is_crashed(self, readings):
-        if readings[0] == 1 or readings[1] == 1 or readings[2] == 1:
+        if readings[0] == 1: # or readings[1] == 1 or readings[2] == 1:
             return True
         else:
             return False
@@ -205,9 +208,9 @@ class GameState:
         arm_right = arm_left
 
         # Rotate them and get readings.
-        readings.append(self.get_arm_distance(arm_left, x, y, angle, 0.75))
+        # readings.append(self.get_arm_distance(arm_left, x, y, angle, 0.75))
         readings.append(self.get_arm_distance(arm_middle, x, y, angle, 0))
-        readings.append(self.get_arm_distance(arm_right, x, y, angle, -0.75))
+        # readings.append(self.get_arm_distance(arm_right, x, y, angle, -0.75))
 
         if show_sensors:
             pygame.display.update()
